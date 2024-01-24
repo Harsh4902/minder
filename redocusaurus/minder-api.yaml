@@ -14,6 +14,48 @@ consumes:
 produces:
   - application/json
 paths:
+  /api/v1/artifact/name/{name}:
+    get:
+      operationId: ArtifactService_GetArtifactByName
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetArtifactByNameResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: name
+          in: path
+          required: true
+          type: string
+        - name: latestVersions
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: tag
+          in: query
+          required: false
+          type: string
+        - name: context.provider
+          description: name of the provider
+          in: query
+          required: false
+          type: string
+        - name: context.project
+          description: ID of the project
+          in: query
+          required: false
+          type: string
+        - name: context.retiredOrganization
+          in: query
+          required: false
+          type: string
+      tags:
+        - ArtifactService
   /api/v1/artifact/{id}:
     get:
       operationId: ArtifactService_GetArtifactById
@@ -41,19 +83,53 @@ paths:
           required: false
           type: string
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
         - name: context.retiredOrganization
+          in: query
+          required: false
+          type: string
+      tags:
+        - ArtifactService
+  /api/v1/artifacts:
+    get:
+      operationId: ArtifactService_ListArtifacts2
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListArtifactsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: provider
+          in: query
+          required: false
+          type: string
+        - name: context.provider
+          description: name of the provider
+          in: query
+          required: false
+          type: string
+        - name: context.project
+          description: ID of the project
+          in: query
+          required: false
+          type: string
+        - name: context.retiredOrganization
+          in: query
+          required: false
+          type: string
+        - name: from
           in: query
           required: false
           type: string
@@ -76,20 +152,64 @@ paths:
           in: path
           required: true
           type: string
-        - name: projectId
-          in: query
-          required: false
-          type: string
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
+          in: query
+          required: false
+          type: string
+        - name: context.retiredOrganization
+          in: query
+          required: false
+          type: string
+        - name: from
+          in: query
+          required: false
+          type: string
+      tags:
+        - ArtifactService
+  /api/v1/auth/callback/cli:
+    get:
+      summary: buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+      description: protolint:disable:this
+      operationId: OAuthService_ExchangeCodeForTokenCLI2
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/apiHttpBody'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: provider
+          in: query
+          required: false
+          type: string
+        - name: code
+          in: query
+          required: false
+          type: string
+        - name: state
+          in: query
+          required: false
+          type: string
+        - name: redirectUri
+          in: query
+          required: false
+          type: string
+        - name: context.provider
+          description: name of the provider
+          in: query
+          required: false
+          type: string
+        - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
@@ -98,7 +218,7 @@ paths:
           required: false
           type: string
       tags:
-        - ArtifactService
+        - OAuthService
   /api/v1/auth/callback/{provider}/cli:
     get:
       summary: buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
@@ -118,10 +238,6 @@ paths:
           in: path
           required: true
           type: string
-        - name: projectId
-          in: query
-          required: false
-          type: string
         - name: code
           in: query
           required: false
@@ -135,15 +251,12 @@ paths:
           required: false
           type: string
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
@@ -153,45 +266,38 @@ paths:
           type: string
       tags:
         - OAuthService
-  /api/v1/auth/callback/{provider}/web:
-    get:
-      operationId: OAuthService_ExchangeCodeForTokenWEB
+  /api/v1/auth/token:
+    post:
+      operationId: OAuthService_StoreProviderToken2
       responses:
         '200':
           description: A successful response.
           schema:
-            $ref: '#/definitions/v1ExchangeCodeForTokenWEBResponse'
+            $ref: '#/definitions/v1StoreProviderTokenResponse'
         default:
           description: An unexpected error response.
           schema:
             $ref: '#/definitions/googlerpcStatus'
       parameters:
         - name: provider
-          in: path
-          required: true
-          type: string
-        - name: projectId
           in: query
           required: false
           type: string
-        - name: code
+        - name: accessToken
           in: query
           required: false
           type: string
-        - name: redirectUri
+        - name: owner
           in: query
           required: false
           type: string
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
@@ -214,14 +320,6 @@ paths:
           schema:
             $ref: '#/definitions/googlerpcStatus'
       parameters:
-        - name: provider
-          in: query
-          required: false
-          type: string
-        - name: projectId
-          in: query
-          required: false
-          type: string
         - name: cli
           in: query
           required: false
@@ -236,15 +334,12 @@ paths:
           required: false
           type: string
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
@@ -279,20 +374,54 @@ paths:
           required: true
           type: string
           format: date-time
-        - name: projectId
-          in: query
-          required: false
-          type: string
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
+          in: query
+          required: false
+          type: string
+        - name: context.retiredOrganization
+          in: query
+          required: false
+          type: string
+      tags:
+        - OAuthService
+  /api/v1/auth/verify/{timestamp}:
+    get:
+      summary: >-
+        VerifyProviderTokenFrom verifies that a token has been created for a
+        provider since given timestamp
+      operationId: OAuthService_VerifyProviderTokenFrom2
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1VerifyProviderTokenFromResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: timestamp
+          in: path
+          required: true
+          type: string
+          format: date-time
+        - name: provider
+          in: query
+          required: false
+          type: string
+        - name: context.provider
+          description: name of the provider
+          in: query
+          required: false
+          type: string
+        - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
@@ -323,16 +452,7 @@ paths:
           in: body
           required: true
           schema:
-            type: object
-            properties:
-              projectId:
-                type: string
-              accessToken:
-                type: string
-              owner:
-                type: string
-              context:
-                $ref: '#/definitions/v1Context'
+            $ref: '#/definitions/OAuthServiceStoreProviderTokenBody'
       tags:
         - OAuthService
   /api/v1/health:
@@ -407,15 +527,12 @@ paths:
           required: true
           type: string
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
@@ -471,15 +588,12 @@ paths:
           required: true
           type: string
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
@@ -507,15 +621,12 @@ paths:
           required: true
           type: string
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
@@ -539,15 +650,12 @@ paths:
             $ref: '#/definitions/googlerpcStatus'
       parameters:
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
@@ -571,15 +679,12 @@ paths:
             $ref: '#/definitions/googlerpcStatus'
       parameters:
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
@@ -589,6 +694,48 @@ paths:
           type: string
       tags:
         - ProfileService
+  /api/v1/repositories:
+    get:
+      operationId: RepositoryService_ListRepositories2
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListRepositoriesResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: provider
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: context.provider
+          description: name of the provider
+          in: query
+          required: false
+          type: string
+        - name: context.project
+          description: ID of the project
+          in: query
+          required: false
+          type: string
+        - name: context.retiredOrganization
+          in: query
+          required: false
+          type: string
+        - name: cursor
+          in: query
+          required: false
+          type: string
+      tags:
+        - RepositoryService
   /api/v1/repositories/provider/{provider}:
     get:
       operationId: RepositoryService_ListRepositories
@@ -606,34 +753,26 @@ paths:
           in: path
           required: true
           type: string
-        - name: projectId
-          in: query
-          required: false
-          type: string
         - name: limit
           in: query
           required: false
           type: integer
           format: int32
-        - name: offset
-          in: query
-          required: false
-          type: integer
-          format: int32
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
         - name: context.retiredOrganization
+          in: query
+          required: false
+          type: string
+        - name: cursor
           in: query
           required: false
           type: string
@@ -656,20 +795,46 @@ paths:
           in: path
           required: true
           type: string
-        - name: projectId
-          in: query
-          required: false
-          type: string
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
+          in: query
+          required: false
+          type: string
+        - name: context.retiredOrganization
+          in: query
+          required: false
+          type: string
+      tags:
+        - RepositoryService
+  /api/v1/repositories/remote:
+    get:
+      operationId: RepositoryService_ListRemoteRepositoriesFromProvider2
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListRemoteRepositoriesFromProviderResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: provider
+          in: query
+          required: false
+          type: string
+        - name: context.provider
+          description: name of the provider
+          in: query
+          required: false
+          type: string
+        - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
@@ -697,15 +862,12 @@ paths:
           required: true
           type: string
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
@@ -732,15 +894,85 @@ paths:
           required: true
           type: string
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
+          in: query
+          required: false
+          type: string
+        - name: context.retiredOrganization
+          in: query
+          required: false
+          type: string
+      tags:
+        - RepositoryService
+  /api/v1/repository/name/{name}:
+    get:
+      operationId: RepositoryService_GetRepositoryByName2
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetRepositoryByNameResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: name
+          in: path
+          required: true
+          type: string
+        - name: provider
+          in: query
+          required: false
+          type: string
+        - name: context.provider
+          description: name of the provider
+          in: query
+          required: false
+          type: string
+        - name: context.project
+          description: ID of the project
+          in: query
+          required: false
+          type: string
+        - name: context.retiredOrganization
+          in: query
+          required: false
+          type: string
+      tags:
+        - RepositoryService
+    delete:
+      operationId: RepositoryService_DeleteRepositoryByName2
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1DeleteRepositoryByNameResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: name
+          in: path
+          required: true
+          type: string
+        - name: provider
+          in: query
+          required: false
+          type: string
+        - name: context.provider
+          description: name of the provider
+          in: query
+          required: false
+          type: string
+        - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
@@ -771,20 +1003,13 @@ paths:
           in: path
           required: true
           type: string
-        - name: projectId
-          in: query
-          required: false
-          type: string
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
@@ -814,20 +1039,13 @@ paths:
           in: path
           required: true
           type: string
-        - name: projectId
-          in: query
-          required: false
-          type: string
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
@@ -858,14 +1076,53 @@ paths:
           in: body
           required: true
           schema:
-            type: object
-            properties:
-              projectId:
-                type: string
-              repository:
-                $ref: '#/definitions/v1UpstreamRepositoryRef'
-              context:
-                $ref: '#/definitions/v1Context'
+            $ref: '#/definitions/RepositoryServiceRegisterRepositoryBody'
+      tags:
+        - RepositoryService
+  /api/v1/repository/register:
+    post:
+      operationId: RepositoryService_RegisterRepository2
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1RegisterRepositoryResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: provider
+          in: query
+          required: false
+          type: string
+        - name: repository.owner
+          in: query
+          required: false
+          type: string
+        - name: repository.name
+          in: query
+          required: false
+          type: string
+        - name: repository.repoId
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: context.provider
+          description: name of the provider
+          in: query
+          required: false
+          type: string
+        - name: context.project
+          description: ID of the project
+          in: query
+          required: false
+          type: string
+        - name: context.retiredOrganization
+          in: query
+          required: false
+          type: string
       tags:
         - RepositoryService
   /api/v1/rule_type:
@@ -928,15 +1185,12 @@ paths:
           required: true
           type: string
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
@@ -965,15 +1219,12 @@ paths:
           required: true
           type: string
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
@@ -1001,15 +1252,12 @@ paths:
           required: true
           type: string
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
@@ -1033,15 +1281,12 @@ paths:
             $ref: '#/definitions/googlerpcStatus'
       parameters:
         - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
+          description: name of the provider
           in: query
           required: false
           type: string
         - name: context.project
+          description: ID of the project
           in: query
           required: false
           type: string
@@ -1063,24 +1308,6 @@ paths:
           description: An unexpected error response.
           schema:
             $ref: '#/definitions/googlerpcStatus'
-      parameters:
-        - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
-          in: query
-          required: false
-          type: string
-        - name: context.project
-          in: query
-          required: false
-          type: string
-        - name: context.retiredOrganization
-          in: query
-          required: false
-          type: string
       tags:
         - UserService
     delete:
@@ -1094,24 +1321,6 @@ paths:
           description: An unexpected error response.
           schema:
             $ref: '#/definitions/googlerpcStatus'
-      parameters:
-        - name: context.provider
-          description: >-
-            Removing the 'optional' keyword from the following two fields below
-            will break
-
-            buf compatibility checks.
-          in: query
-          required: false
-          type: string
-        - name: context.project
-          in: query
-          required: false
-          type: string
-        - name: context.retiredOrganization
-          in: query
-          required: false
-          type: string
       tags:
         - UserService
     post:
@@ -1288,6 +1497,15 @@ definitions:
     properties:
       def:
         type: string
+  OAuthServiceStoreProviderTokenBody:
+    type: object
+    properties:
+      accessToken:
+        type: string
+      owner:
+        type: string
+      context:
+        $ref: '#/definitions/v1Context'
   ProfileRule:
     type: object
     properties:
@@ -1379,6 +1597,13 @@ definitions:
     title: >-
       the name stutters a bit but we already use a PullRequest message for
       handling PR entities
+  RepositoryServiceRegisterRepositoryBody:
+    type: object
+    properties:
+      repository:
+        $ref: '#/definitions/v1UpstreamRepositoryRef'
+      context:
+        $ref: '#/definitions/v1Context'
   RestTypeFallback:
     type: object
     properties:
@@ -1739,13 +1964,10 @@ definitions:
     properties:
       provider:
         type: string
-        description: >-
-          Removing the 'optional' keyword from the following two fields below
-          will break
-
-          buf compatibility checks.
+        title: name of the provider
       project:
         type: string
+        title: ID of the project
       retiredOrganization:
         type: string
     description: >-
@@ -1753,13 +1975,16 @@ definitions:
 
       this normally refers to a combination of the provider, organization and
       project.
+
+
+      Removing the 'optional' keyword from the following two fields below will
+      break
+       buf compatibility checks.
   v1CreateProfileRequest:
     type: object
     properties:
       profile:
         $ref: '#/definitions/v1Profile'
-      context:
-        $ref: '#/definitions/v1Context'
     title: Profile service
   v1CreateProfileResponse:
     type: object
@@ -1772,8 +1997,6 @@ definitions:
       ruleType:
         $ref: '#/definitions/v1RuleType'
         description: rule_type is the rule type to be created.
-      context:
-        $ref: '#/definitions/v1Context'
     description: CreateRuleTypeRequest is the request to create a rule type.
   v1CreateRuleTypeResponse:
     type: object
@@ -1831,6 +2054,15 @@ definitions:
         items:
           type: object
           $ref: '#/definitions/DiffTypeEcosystem'
+        description: |-
+          ecosystems is the list of ecosystems to be used
+          for the "dep" diff type.
+      type:
+        type: string
+        description: |-
+          type is the type of diff ingestor to use.
+          The default is "dep" which will leverage
+          the ecosystems array.
     description: DiffType defines the diff data ingester.
   v1Entity:
     type: string
@@ -1842,19 +2074,17 @@ definitions:
       - ENTITY_PULL_REQUESTS
     default: ENTITY_UNSPECIFIED
     description: Entity defines the entity that is supported by the provider.
-  v1ExchangeCodeForTokenWEBResponse:
+  v1GetArtifactByIdResponse:
     type: object
     properties:
-      accessToken:
-        type: string
-      tokenType:
-        type: string
-      expiresIn:
-        type: string
-        format: int64
-      status:
-        type: string
-  v1GetArtifactByIdResponse:
+      artifact:
+        $ref: '#/definitions/v1Artifact'
+      versions:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1ArtifactVersion'
+  v1GetArtifactByNameResponse:
     type: object
     properties:
       artifact:
@@ -1982,6 +2212,11 @@ definitions:
         items:
           type: object
           $ref: '#/definitions/v1Repository'
+      cursor:
+        type: string
+        title: >-
+          cursor is the cursor to use for the next page of results, empty if at
+          the end
   v1ListRuleTypesResponse:
     type: object
     properties:
@@ -2280,8 +2515,6 @@ definitions:
     properties:
       profile:
         $ref: '#/definitions/v1Profile'
-      context:
-        $ref: '#/definitions/v1Context'
   v1UpdateProfileResponse:
     type: object
     properties:
@@ -2293,8 +2526,6 @@ definitions:
       ruleType:
         $ref: '#/definitions/v1RuleType'
         description: rule_type is the rule type to be updated.
-      context:
-        $ref: '#/definitions/v1Context'
     description: UpdateRuleTypeRequest is the request to update a rule type.
   v1UpdateRuleTypeResponse:
     type: object
