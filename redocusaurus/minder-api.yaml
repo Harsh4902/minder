@@ -9,6 +9,8 @@ tags:
   - name: RepositoryService
   - name: UserService
   - name: ProfileService
+  - name: PermissionsService
+  - name: ProvidersService
 consumes:
   - application/json
 produces:
@@ -30,15 +32,6 @@ paths:
         - name: name
           in: path
           required: true
-          type: string
-        - name: latestVersions
-          in: query
-          required: false
-          type: integer
-          format: int32
-        - name: tag
-          in: query
-          required: false
           type: string
         - name: context.provider
           description: name of the provider
@@ -72,15 +65,6 @@ paths:
         - name: id
           in: path
           required: true
-          type: string
-        - name: latestVersions
-          in: query
-          required: false
-          type: integer
-          format: int32
-        - name: tag
-          in: query
-          required: false
           type: string
         - name: context.provider
           description: name of the provider
@@ -469,6 +453,128 @@ paths:
             $ref: '#/definitions/googlerpcStatus'
       tags:
         - HealthService
+  /api/v1/permissions/assign:
+    post:
+      operationId: PermissionsService_AssignRole
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1AssignRoleResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1AssignRoleRequest'
+      tags:
+        - PermissionsService
+  /api/v1/permissions/assignments:
+    get:
+      operationId: PermissionsService_ListRoleAssignments
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListRoleAssignmentsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: context.provider
+          description: name of the provider
+          in: query
+          required: false
+          type: string
+        - name: context.project
+          description: ID of the project
+          in: query
+          required: false
+          type: string
+        - name: context.retiredOrganization
+          in: query
+          required: false
+          type: string
+      tags:
+        - PermissionsService
+  /api/v1/permissions/remove/{roleAssignment.role}/subject/{roleAssignment.subject}:
+    delete:
+      operationId: PermissionsService_RemoveRole
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1RemoveRoleResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: roleAssignment.role
+          description: role is the role that is assigned.
+          in: path
+          required: true
+          type: string
+        - name: roleAssignment.subject
+          description: subject is the subject to which the role is assigned.
+          in: path
+          required: true
+          type: string
+        - name: context.provider
+          description: name of the provider
+          in: query
+          required: false
+          type: string
+        - name: context.project
+          description: ID of the project
+          in: query
+          required: false
+          type: string
+        - name: context.retiredOrganization
+          in: query
+          required: false
+          type: string
+        - name: roleAssignment.project
+          description: projectt is the projectt in which the role is assigned.
+          in: query
+          required: false
+          type: string
+      tags:
+        - PermissionsService
+  /api/v1/permissions/roles:
+    get:
+      operationId: PermissionsService_ListRoles
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListRolesResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: context.provider
+          description: name of the provider
+          in: query
+          required: false
+          type: string
+        - name: context.project
+          description: ID of the project
+          in: query
+          required: false
+          type: string
+        - name: context.retiredOrganization
+          in: query
+          required: false
+          type: string
+      tags:
+        - PermissionsService
   /api/v1/profile:
     post:
       operationId: ProfileService_CreateProfile
@@ -564,6 +670,15 @@ paths:
           required: false
           type: boolean
         - name: rule
+          description: rule is the type of the rule. Deprecated in favor of rule_type
+          in: query
+          required: false
+          type: string
+        - name: ruleType
+          in: query
+          required: false
+          type: string
+        - name: ruleName
           in: query
           required: false
           type: string
@@ -694,6 +809,48 @@ paths:
           type: string
       tags:
         - ProfileService
+  /api/v1/providers:
+    get:
+      operationId: ProvidersService_ListProviders
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListProvidersResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: context.provider
+          description: name of the provider
+          in: query
+          required: false
+          type: string
+        - name: context.project
+          description: ID of the project
+          in: query
+          required: false
+          type: string
+        - name: context.retiredOrganization
+          in: query
+          required: false
+          type: string
+        - name: limit
+          description: limit is the maximum number of providers to return.
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: cursor
+          description: >-
+            cursor is the cursor to use for the page of results, empty if at the
+            beginning
+          in: query
+          required: false
+          type: string
+      tags:
+        - ProvidersService
   /api/v1/repositories:
     get:
       operationId: RepositoryService_ListRepositories2
@@ -1381,6 +1538,9 @@ definitions:
       trusty:
         $ref: '#/definitions/EvalTrusty'
         description: trusty is only used if the `trusty` type is selected.
+      homoglyphs:
+        $ref: '#/definitions/EvalHomoglyphs'
+        description: homoglyphs is only used if the `homoglyphs` type is selected.
     description: |-
       Eval defines the data evaluation definition.
       This pertains to the way we traverse data from the upstream
@@ -1431,6 +1591,11 @@ definitions:
       depfile:
         type: string
         title: depfile is the file that contains the dependencies for this ecosystem
+  EvalHomoglyphs:
+    type: object
+    properties:
+      type:
+        type: string
   EvalJQComparison:
     type: object
     properties:
@@ -1522,6 +1687,9 @@ definitions:
         description: |-
           def is the definition of the rule.
           This depends on the rule type.
+      name:
+        type: string
+        title: name is the descriptive name of the rule, not to be confused with type
     description: Rule defines the individual call of a certain rule type.
   PullRequestRemediationActionsReplaceTagsWithSha:
     type: object
@@ -1941,13 +2109,24 @@ definitions:
           type: string
       sha:
         type: string
-      signatureVerification:
-        $ref: '#/definitions/v1SignatureVerification'
-      githubWorkflow:
-        $ref: '#/definitions/v1GithubWorkflow'
       createdAt:
         type: string
         format: date-time
+  v1AssignRoleRequest:
+    type: object
+    properties:
+      context:
+        $ref: '#/definitions/v1Context'
+        description: context is the context in which the role assignment is evaluated.
+      roleAssignment:
+        $ref: '#/definitions/v1RoleAssignment'
+        description: role_assignment is the role assignment to be created.
+  v1AssignRoleResponse:
+    type: object
+    properties:
+      roleAssignment:
+        $ref: '#/definitions/v1RoleAssignment'
+        description: role_assignment is the role assignment that was created.
   v1BuiltinType:
     type: object
     properties:
@@ -2169,17 +2348,6 @@ definitions:
         type: string
         description: branch is the branch of the git repository.
     description: GitType defines the git data ingester.
-  v1GithubWorkflow:
-    type: object
-    properties:
-      name:
-        type: string
-      repository:
-        type: string
-      commitSha:
-        type: string
-      trigger:
-        type: string
   v1ListArtifactsResponse:
     type: object
     properties:
@@ -2196,6 +2364,19 @@ definitions:
         items:
           type: object
           $ref: '#/definitions/v1Profile'
+  v1ListProvidersResponse:
+    type: object
+    properties:
+      providers:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1Provider'
+      cursor:
+        type: string
+        title: >-
+          cursor is the cursor to use for the next page of results, empty if at
+          the end
   v1ListRemoteRepositoriesFromProviderResponse:
     type: object
     properties:
@@ -2217,6 +2398,22 @@ definitions:
         title: >-
           cursor is the cursor to use for the next page of results, empty if at
           the end
+  v1ListRoleAssignmentsResponse:
+    type: object
+    properties:
+      roleAssignments:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1RoleAssignment'
+  v1ListRolesResponse:
+    type: object
+    properties:
+      roles:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1Role'
   v1ListRuleTypesResponse:
     type: object
     properties:
@@ -2314,6 +2511,37 @@ definitions:
         type: string
         format: date-time
     title: Project API Objects
+  v1Provider:
+    type: object
+    properties:
+      name:
+        type: string
+        description: name is the name of the provider.
+      project:
+        type: string
+        description: project is the project where the provider is.
+      version:
+        type: string
+        description: version is the version of the provider.
+      implements:
+        type: array
+        items:
+          $ref: '#/definitions/v1ProviderType'
+        description: implements is the list of interfaces that the provider implements.
+      config:
+        type: object
+        description: config is the configuration of the provider.
+  v1ProviderType:
+    type: string
+    enum:
+      - PROVIDER_TYPE_UNSPECIFIED
+      - PROVIDER_TYPE_GITHUB
+      - PROVIDER_TYPE_REST
+      - PROVIDER_TYPE_GIT
+      - PROVIDER_TYPE_OCI
+      - PROVIDER_TYPE_REPO_LISTER
+    default: PROVIDER_TYPE_UNSPECIFIED
+    description: ProviderType is the type of the provider.
   v1RegisterRepoResult:
     type: object
     properties:
@@ -2333,6 +2561,12 @@ definitions:
     properties:
       result:
         $ref: '#/definitions/v1RegisterRepoResult'
+  v1RemoveRoleResponse:
+    type: object
+    properties:
+      roleAssignment:
+        $ref: '#/definitions/v1RoleAssignment'
+        description: role_assignment is the role assignment that was removed.
   v1Repository:
     type: object
     properties:
@@ -2413,6 +2647,27 @@ definitions:
     description: |-
       RestType defines the rest data evaluation.
       This is used to fetch data from a REST endpoint.
+  v1Role:
+    type: object
+    properties:
+      name:
+        type: string
+        description: name is the name of the role.
+      description:
+        type: string
+        description: description is the description of the role.
+  v1RoleAssignment:
+    type: object
+    properties:
+      role:
+        type: string
+        description: role is the role that is assigned.
+      subject:
+        type: string
+        description: subject is the subject to which the role is assigned.
+      project:
+        type: string
+        description: projectt is the projectt in which the role is assigned.
   v1RuleEvaluationStatus:
     type: object
     properties:
@@ -2424,7 +2679,9 @@ definitions:
         title: rule_id is the id of the rule
       ruleName:
         type: string
-        title: rule_name is the name of the rule
+        title: >-
+          rule_name is the type of the rule. Deprecated in favor of
+          rule_type_name
       entity:
         type: string
         title: entity is the entity that was evaluated
@@ -2460,6 +2717,12 @@ definitions:
         title: >-
           remediation_details is the description of the remediation attempt if
           any
+      ruleTypeName:
+        type: string
+        title: rule_type_name is the name of the rule
+      ruleDescriptionName:
+        type: string
+        title: rule_description_name is the name to describe the rule
     title: get the status of the rules for a given profile
   v1RuleType:
     type: object
@@ -2487,27 +2750,6 @@ definitions:
     description: |-
       RuleType defines rules that may or may not be user defined.
       The version is assumed from the folder's version.
-  v1SignatureVerification:
-    type: object
-    properties:
-      isSigned:
-        type: boolean
-      isVerified:
-        type: boolean
-      isBundleVerified:
-        type: boolean
-      certIdentity:
-        type: string
-      certIssuer:
-        type: string
-      rekorLogId:
-        type: string
-      rekorLogIndex:
-        type: string
-        format: int64
-      signatureTime:
-        type: string
-        format: date-time
   v1StoreProviderTokenResponse:
     type: object
   v1UpdateProfileRequest:
